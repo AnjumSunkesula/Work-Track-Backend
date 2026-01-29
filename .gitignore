@@ -1,0 +1,22 @@
+# Build outputs
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.cache
+*.log
+
+# Rider / VS Code
+.idea/
+.vscode/
+
+# App settings (secrets)
+appsettings.json
+appsettings.Development.json
+
+# OS files
+.DS_Store
+Thumbs.db
