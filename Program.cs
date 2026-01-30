@@ -25,11 +25,10 @@ builder.Services.AddCors(options =>
     {
         policy
             .WithOrigins("https://work-track-gold.vercel.app")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+            .WithHeaders("Authorization", "Content-Type")
+            .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
     });
 });
-
 
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is missing");
 
