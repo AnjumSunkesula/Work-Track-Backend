@@ -91,6 +91,18 @@ var app = builder.Build();
 //app.UseHttpsRedirection();
 app.UseRouting();
 
+app.Use(async (context, next) =>
+{
+    if (context.Request.Method == HttpMethods.Options)
+    {
+        context.Response.StatusCode = 200;
+        return;
+    }
+
+    await next();
+});
+
+
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
