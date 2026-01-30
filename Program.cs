@@ -48,6 +48,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Encoding.UTF8.GetBytes(jwtKey)
             )
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (context.HttpContext.Request.Method == HttpMethods.Options)
+                {
+                    context.NoResult(); // skip auth
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 // Add services to the container.
