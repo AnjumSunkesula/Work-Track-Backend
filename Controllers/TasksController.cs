@@ -29,26 +29,33 @@ namespace Work_Track.Controllers
                 User.FindFirstValue(ClaimTypes.NameIdentifier)!
             );
 
+            // 1️⃣ Validate FIRST (before touching DB)
+            var dueDateUtc = DateTime.SpecifyKind(dto.DueDate, DateTimeKind.Utc);
+
+            if (dueDateUtc.Date < DateTime.UtcNow.Date)
+            {
+                return BadRequest("Due date cannot be in the past");
+            }
+
+            // 2️⃣ Create task with UTC-safe dates
             var task = new TaskItem
             {
                 Title = dto.Title,
                 Priority = dto.Priority ?? "MED",
                 UserId = userId,
                 Description = dto.Description,
-                DueDate = dto.DueDate
+
+                CreatedAt = DateTime.UtcNow,        // ✅ UTC
+                DueDate = dueDateUtc,               // ✅ UTC
+                IsCompleted = false
             };
 
             _context.Tasks.Add(task);
             _context.SaveChanges();
 
-            if (dto.DueDate < DateTime.UtcNow.Date)
-            {
-                return BadRequest("Due date cannot be in the past");
-            }
-
-
             return CreatedAtAction(nameof(GetTaskById), new { id = task.Id }, task);
         }
+
 
         // GET: api/tasks
         [HttpGet]
