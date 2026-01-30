@@ -24,12 +24,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .WithOrigins(
-                "https://work-track-gold.vercel.app"
-            )
+            .WithOrigins("https://work-track-gold.vercel.app")
             .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+            .AllowAnyMethod();
     });
 });
 
@@ -94,18 +91,7 @@ var app = builder.Build();
 //app.UseHttpsRedirection();
 app.UseRouting();
 
-app.UseCors("AllowAll");
-
-app.Use(async (context, next) =>
-{
-    if (context.Request.Method == HttpMethods.Options)
-    {
-        context.Response.StatusCode = 200;
-        return;
-    }
-    await next();
-});
-
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
