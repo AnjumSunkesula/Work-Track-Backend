@@ -25,19 +25,26 @@ namespace Work_Track.Controllers
         [HttpPost]
         public IActionResult CreateTask(TaskCreateDto dto)
         {
+            if (dto.DueDate == null)
+            {
+                return BadRequest("Due date is required");
+            }
+
             var userId = int.Parse(
                 User.FindFirstValue(ClaimTypes.NameIdentifier)!
             );
 
-            // 1️⃣ Validate FIRST (before touching DB)
-            var dueDateUtc = DateTime.SpecifyKind(dto.DueDate, DateTimeKind.Utc);
+            // Convert nullable → non-null UTC DateTime
+            var dueDateUtc = DateTime.SpecifyKind(
+                dto.DueDate.Value,
+                DateTimeKind.Utc
+            );
 
             if (dueDateUtc.Date < DateTime.UtcNow.Date)
             {
                 return BadRequest("Due date cannot be in the past");
             }
 
-            // 2️⃣ Create task with UTC-safe dates
             var task = new TaskItem
             {
                 Title = dto.Title,
@@ -45,8 +52,8 @@ namespace Work_Track.Controllers
                 UserId = userId,
                 Description = dto.Description,
 
-                CreatedAt = DateTime.UtcNow,        // ✅ UTC
-                DueDate = dueDateUtc,               // ✅ UTC
+                CreatedAt = DateTime.UtcNow,
+                DueDate = dueDateUtc,
                 IsCompleted = false
             };
 
@@ -55,6 +62,7 @@ namespace Work_Track.Controllers
 
             return CreatedAtAction(nameof(GetTaskById), new { id = task.Id }, task);
         }
+
 
 
         // GET: api/tasks
