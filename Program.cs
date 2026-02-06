@@ -24,7 +24,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .WithOrigins("https://work-track-gold.vercel.app")
+             .WithOrigins(
+                "http://localhost:5173",
+                "http://localhost:3000",
+                "https://work-track-gold.vercel.app"
+            )
             .WithHeaders("Authorization", "Content-Type")
             .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
     });
@@ -110,9 +114,19 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
-}
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
+        if (!app.Environment.IsDevelopment())
+        {
+            db.Database.Migrate();
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Skipping DB migration: " + ex.Message);
+    }
+}
 
 app.Run();
